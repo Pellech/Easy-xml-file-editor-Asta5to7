@@ -1,0 +1,55 @@
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+public class MontecarloEngine {
+    public static void main(String[] args) {
+           try {
+            // Load the XML file
+            File xmlFile = new File("C:\\asta7-data\\data\\Eksport 3\\data\\content\\Geografi.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+
+            // Normalize the document
+            doc.getDocumentElement().normalize();
+
+            // Get all <GEOGRAFI> tags
+            NodeList geografiList = doc.getElementsByTagName("GEOGRAFI");
+
+            // Iterate through each <GEOGRAFI> tag
+            for (int i = 0; i < geografiList.getLength(); i++) {
+                Node geografiNode = geografiList.item(i);
+                if (geografiNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element geografiElement = (Element) geografiNode;
+
+                    // Check if <GEOGRAFI> tag has only one child
+                    if (geografiElement.getChildNodes().getLength() == 1) {
+                        // Remove the <GEOGRAFI> tag
+                        geografiElement.getParentNode().removeChild(geografiElement);
+                    }
+                }
+            }
+
+            // Save the modified XML document
+            String outputPath = "C://asta7-data//data//Eksport 3//data//content//NewGEOGRAFI.xml";
+            final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(outputPath));
+            transformer.transform(source, result);
+            System.out.println("Modified XML document saved at: " + outputPath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
